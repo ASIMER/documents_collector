@@ -1,6 +1,6 @@
 # API Reference — data.rada.gov.ua
 
-> This file contains actual API response structures, verified through Postman on 2026-02-01.
+> This file contains actual API response structures verified through Postman testing.
 > Use it as the single source of truth when implementing the collector.
 
 ---
@@ -142,7 +142,7 @@ Headers: User-Agent: OpenData
 
 #### Pagination
 
-Currently (2026-02-01) all 514 documents are returned on a single page (`cnt=514, max=514`). But code MUST support pagination:
+Currently all 514 documents are returned on a single page (`cnt=514, max=514`). Code MUST support pagination for future scalability:
 
 ```python
 def collect_all_pages(session, base_url):
@@ -393,7 +393,7 @@ The API serves CSV files with `.txt` extension for several reasons:
 
 **Important**: Always parse as CSV (tab-delimited), not as plain text!
 
-### 4.4 Available Dictionaries (Verified 2026-02-01)
+### 4.4 Available Dictionaries
 
 | Endpoint | Status | CSV File | Encoding | Format |
 |----------|--------|----------|----------|--------|

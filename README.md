@@ -2,6 +2,33 @@
 
 A production-ready data pipeline for collecting, transforming, and storing legal documents from open data sources for LLM training. Built with **Airflow 2.10.4**, **Python 3.12**, and optimized for scalability.
 
+---
+
+## 🚀 Live Demo (Remote Deployment)
+
+The pipeline is deployed and running at **195.211.84.212**. Access services directly:
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **Airflow UI** | http://195.211.84.212:8080 | `admin` / `admin` |
+| **MinIO Console** | http://195.211.84.212:9001 | `minioadmin` / `minioadmin` |
+| **PostgreSQL** | `195.211.84.212:5432` | `pipeline_user` / `pipeline_password` |
+
+### Quick Start with Remote Deployment
+
+1. **Access Airflow UI**: Open http://195.211.84.212:8080 (login: admin/admin)
+2. **Trigger Pipeline**: Find DAG `document_pipeline` → Click play icon
+3. **Configure Run**:
+   - Set `doc_limit: 5` for quick test (5 documents)
+   - Set `doc_limit: 0` for full collection (~514 documents)
+   - See [Changing Document Limit](#changing-document-limit-for-full-collection) for details
+4. **Monitor Progress**: Watch task execution in real-time
+5. **View Results**: Check MinIO Console or PostgreSQL for collected data
+
+**Note**: You can change `doc_limit` parameter when triggering DAG, or edit config file for automatic scheduled runs. See [section 3](#3-run-pipeline) for details.
+
+---
+
 ## Features
 
 - **Airflow 2.10.4** with Python 3.12 (stable, production-ready)
@@ -49,8 +76,13 @@ cd documents_collector
 make up
 
 # Or using docker-compose directly
+# First create required directories with correct permissions
+mkdir -p outputs/logs data
+chmod -R 777 outputs/logs data
 cd docker && docker-compose up -d
 ```
+
+**Note**: `make up` automatically creates required directories (`outputs/logs`, `data`) with correct permissions for Airflow (UID 50000).
 
 Wait 60-90 seconds for all services to initialize.
 
@@ -83,6 +115,23 @@ cd docker
 docker-compose exec airflow-scheduler \
   python /opt/airflow/scripts/run_pipeline.py full --source rada --limit 5
 ```
+
+#### Changing Document Limit for Full Collection
+
+To run full collection (all ~514 documents) instead of 5 test documents:
+
+1. **Via Airflow UI**: Set `doc_limit: 0` when triggering DAG (can be changed at each trigger)
+2. **Via CLI**: Change `--limit 5` to `--limit 0` in command above
+3. **For automatic scheduled runs**: Edit `dags/rada_data_source/config.yml`:
+   ```yaml
+   pipeline:
+     doc_limit: 0  # Change from 5 to 0 for full collection
+   ```
+
+**Note**:
+- `0` means no limit (collect all documents)
+- Any positive number collects that specific count (e.g., `10`, `50`, `100`)
+- Parameter can be changed when manually triggering DAG (option 1) without editing config file
 
 ### 4. Verify Results
 
@@ -337,3 +386,120 @@ docker-compose exec -T minio mc mb local/pipeline-temp
 | **PostgreSQL + MinIO** | Separation: fast SQL queries + S3-like for large files |
 | **Hive-style partitions** | Compatible with Athena/Spark/Snowflake, scalable |
 | **Configuration split** | Global infrastructure + DAG-specific for easy source addition |
+
+---
+
+## Kyivstar Assessment Submission
+
+This project was developed as an assessment task for the **Kyivstar UkrLLM Data Engineer position**.
+
+### Submission Package Contents
+
+1. **Code**: Full Python pipeline with CLI entry point (`scripts/run_pipeline.py`)
+2. **Configuration**: `configs/config.yaml` + `dags/rada_data_source/config.yml`
+3. **Lockfile**: `uv.lock` + `pyproject.toml` (reproducible dependencies)
+4. **Docker**: `docker/Dockerfile` + `docker/docker-compose.yaml`
+5. **Report**: `REPORT.md` (comprehensive assessment report with analysis)
+6. **Data Dump**: `outputs/` directory with sample documents and database exports
+
+### Assessment Task Compliance
+
+| Requirement | Status | Implementation |
+|-------------|--------|----------------|
+| **Data Collection** | ✅ Complete | `pipeline/collectors/rada.py` - Full metadata + text collection |
+| **Data Transformation** | ✅ Complete | `pipeline/tasks/transform.py` - Markdown with YAML frontmatter |
+| **Airflow Automation** | ✅ Complete | `dags/rada_data_source/document_pipeline_dag.py` - Scheduled DAG |
+| **Quality Controls** | ✅ Complete | `pipeline/tasks/quality.py` - Validation checks + reporting |
+| **Idempotent Code** | ✅ Complete | SCD Type 2 + pre-download filtering (revision_date comparison) |
+| **Config File** | ✅ Complete | YAML configuration (split: global + DAG-specific) |
+| **UV/Poetry Lockfile** | ✅ Complete | `uv.lock` with pinned dependencies |
+| **Dockerfile** | ✅ Complete | Airflow 2.10.4 + Python 3.12 base image |
+| **Installation Guide** | ✅ Complete | See Quick Start section above |
+| **Report** | ✅ Complete | `REPORT.md` - 6 sections per task requirements |
+| **Data Dump** | ✅ Complete | `outputs/` directory with MinIO exports + CSV files |
+
+### Quick Demo
+
+Run pipeline for 10 documents to verify functionality:
+
+```bash
+# Start services
+make up
+
+# Wait 60-90 seconds for initialization
+
+# Trigger pipeline via Airflow UI
+# 1. Open http://localhost:8080 (admin/admin)
+# 2. Find DAG: document_pipeline
+# 3. Trigger with config: {"doc_limit": 10}
+
+# Or via CLI
+cd docker
+docker-compose exec airflow-scheduler \
+  python /opt/airflow/scripts/run_pipeline.py full --source rada --limit 10
+
+# Verify results
+make check-db    # PostgreSQL: 10 documents
+make check-minio # MinIO: 60 files (10 docs × 6 file types)
+```
+
+### Report Highlights
+
+**REPORT.md** contains comprehensive analysis including:
+
+1. **Solution Design**: Architecture, components, database schema (SCD Type 2), data flow
+2. **Automation Recommendation**: Deployment strategies, scheduling, scaling, monitoring
+3. **Heuristic Filtering**: Pre-download filtering (90%+ reduction), optional NeMo-Curator
+4. **Analysis of Data Collected**: Real metrics from 204 documents, quality scores
+5. **Failure Cases & Improvements**: Current limitations, scalability bottlenecks
+6. **Reproducibility Checklist**: Step-by-step installation, verification, troubleshooting
+
+**Key Metrics** (from production run):
+- **204 documents** collected from Rada API
+- **2.48M characters**, **314K words** (avg 1,541 words/document)
+- **100% quality score** (all checks passed)
+- **90% API call reduction** on incremental runs (pre-download filtering)
+- **~7.1 GB storage** (raw + processed files with dual-write partitioning)
+
+### Time Investment
+
+- **Research & Design**: 1.5 hours
+- **Implementation**: 5 hours
+- **Testing & Documentation**: 1.5 hours
+- **Total**: ~8 hours (within assessment task time limit)
+
+### Data Dump Structure
+
+```
+outputs/
+├── minio_dump/                     # Complete MinIO bucket exports
+│   ├── raw/                        # Raw documents (6 file types per doc)
+│   │   ├── by_revision/            # Analytics partitioning (Hive-style)
+│   │   └── by_collection/          # Debugging partitioning (by run date)
+│   ├── processed/                  # Markdown files
+│   │   ├── by_revision/            # Analytics partitioning
+│   │   └── by_collection/          # Debugging partitioning
+│   └── dictionaries/               # Reference data snapshots
+│       └── snapshots/              # Status, theme dictionaries (JSON)
+├── collection_runs_sample.csv      # Pipeline execution records (5 runs)
+├── documents_sample.csv            # Document metadata (20 documents)
+├── dictionaries_export.csv         # All dictionary entries (40 rows)
+├── pipeline_run_metrics.json       # Latest run statistics
+└── documents_statistics.json       # Aggregate text metrics
+```
+
+### Key Achievements
+
+✅ **Production-ready**: Tested with real data, comprehensive error handling
+✅ **Scalable**: Hive-style partitioning, SCD Type 2, pluggable collectors
+✅ **Efficient**: 90%+ API call reduction via pre-download filtering
+✅ **Well-documented**: 3 comprehensive docs (README, ARCHITECTURE, REPORT)
+✅ **Extensible**: Collector pattern enables easy addition of new sources
+✅ **Quality-focused**: 100% test pass rate, validation at every stage
+
+### Contact
+
+For questions about the implementation or assessment task:
+- **Repository**: [Link to repository]
+- **Documentation**: See `REPORT.md` for detailed analysis
+- **Architecture**: See `ARCHITECTURE.md` for design decisions

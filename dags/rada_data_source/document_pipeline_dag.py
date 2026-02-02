@@ -85,7 +85,7 @@ dag = DAG(
             description="Data source name (rada, court, eu, etc.)",
         ),
         "doc_limit": Param(
-            5,
+            CONFIG.get("pipeline", {}).get("doc_limit", 5),
             type="integer",
             description="Document limit for testing (0 = no limit, full run)",
         ),
