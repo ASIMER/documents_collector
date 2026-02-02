@@ -2,6 +2,33 @@
 
 A production-ready data pipeline for collecting, transforming, and storing legal documents from open data sources for LLM training. Built with **Airflow 2.10.4**, **Python 3.12**, and optimized for scalability.
 
+---
+
+## 🚀 Live Demo (Remote Deployment)
+
+The pipeline is deployed and running at **195.211.84.212**. Access services directly:
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **Airflow UI** | http://195.211.84.212:8080 | `admin` / `admin` |
+| **MinIO Console** | http://195.211.84.212:9001 | `minioadmin` / `minioadmin` |
+| **PostgreSQL** | `195.211.84.212:5432` | `pipeline_user` / `pipeline_password` |
+
+### Quick Start with Remote Deployment
+
+1. **Access Airflow UI**: Open http://195.211.84.212:8080 (login: admin/admin)
+2. **Trigger Pipeline**: Find DAG `document_pipeline` → Click play icon
+3. **Configure Run**:
+   - Set `doc_limit: 5` for quick test (5 documents)
+   - Set `doc_limit: 0` for full collection (~514 documents)
+   - See [Changing Document Limit](#changing-document-limit-for-full-collection) for details
+4. **Monitor Progress**: Watch task execution in real-time
+5. **View Results**: Check MinIO Console or PostgreSQL for collected data
+
+**Note**: You can change `doc_limit` parameter when triggering DAG, or edit config file for automatic scheduled runs. See [section 3](#3-run-pipeline) for details.
+
+---
+
 ## Features
 
 - **Airflow 2.10.4** with Python 3.12 (stable, production-ready)
@@ -88,6 +115,23 @@ cd docker
 docker-compose exec airflow-scheduler \
   python /opt/airflow/scripts/run_pipeline.py full --source rada --limit 5
 ```
+
+#### Changing Document Limit for Full Collection
+
+To run full collection (all ~514 documents) instead of 5 test documents:
+
+1. **Via Airflow UI**: Set `doc_limit: 0` when triggering DAG (can be changed at each trigger)
+2. **Via CLI**: Change `--limit 5` to `--limit 0` in command above
+3. **For automatic scheduled runs**: Edit `dags/rada_data_source/config.yml`:
+   ```yaml
+   pipeline:
+     doc_limit: 0  # Change from 5 to 0 for full collection
+   ```
+
+**Note**:
+- `0` means no limit (collect all documents)
+- Any positive number collects that specific count (e.g., `10`, `50`, `100`)
+- Parameter can be changed when manually triggering DAG (option 1) without editing config file
 
 ### 4. Verify Results
 
