@@ -1,0 +1,53 @@
+# ============================================================================
+# Rada Data Source Configuration
+# ============================================================================
+# This file contains settings specific to the Rada document pipeline.
+# Global infrastructure settings are in /configs/config.yaml
+# ============================================================================
+
+# ────────────────────────────────────────────────────────────────────────────
+# Data Source Identification
+# ────────────────────────────────────────────────────────────────────────────
+source:
+  name: "rada"
+  display_name: "Ukrainian Parliament (Verkhovna Rada)"
+  collector_class: "pipeline.collectors.rada.RadaCollector"
+
+# ────────────────────────────────────────────────────────────────────────────
+# Rada API Configuration
+# ────────────────────────────────────────────────────────────────────────────
+api:
+  base_url: "https://data.rada.gov.ua"
+  auth_method: "token"  # "token" or "opendata"
+  token: "${RADA_API_TOKEN}"
+  fallback_to_opendata: true
+  user_agent_opendata: "OpenData"
+  timeout: 30
+
+  rate_limit:
+    min_pause: 5.0
+    max_pause: 7.0
+    max_requests_per_minute: 60
+
+  pagination:
+    max_pages: 100
+
+# ────────────────────────────────────────────────────────────────────────────
+# Rada Dictionaries (Reference Data)
+# ────────────────────────────────────────────────────────────────────────────
+dictionaries:
+  - name: "stan"       # Statuses (document lifecycle states)
+    dict_type: "status"
+
+  - name: "temy"       # Themes (thematic categories)
+    dict_type: "theme"
+
+# ────────────────────────────────────────────────────────────────────────────
+# Pipeline Overrides (optional - inherits from global config)
+# ────────────────────────────────────────────────────────────────────────────
+pipeline:
+  # skip_existing: Enable pre-download document filtering (see global config for details)
+  # For Rada, this typically results in 90%+ API call reduction on incremental runs
+  skip_existing: true
+
+  min_text_length: 100  # Rada documents typically longer than default 50

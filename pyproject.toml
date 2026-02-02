@@ -1,0 +1,48 @@
+[project]
+name = "document-pipeline"
+version = "0.1.0"
+description = "Document Collection Pipeline for LLM Training Data"
+requires-python = ">=3.13"
+
+dependencies = [
+    "requests>=2.32",
+    "pandas>=2.2",
+    "pyyaml>=6.0",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.1",
+    "psycopg2-binary>=2.9",
+    "minio>=7.2",
+    "click>=8.1",
+    "apache-airflow-providers-standard>=1.0",
+    "apache-airflow-providers-postgres>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.3",
+    "mypy>=1.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "ruff>=0.3",
+    "mypy>=1.8",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true

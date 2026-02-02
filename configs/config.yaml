@@ -1,0 +1,54 @@
+# ============================================================================
+# Global Infrastructure Configuration
+# ============================================================================
+# This file contains settings shared across ALL data sources and DAGs.
+# For source-specific settings, see individual DAG config files.
+# ============================================================================
+
+# ────────────────────────────────────────────────────────────────────────────
+# MinIO Storage (shared across all sources)
+# ────────────────────────────────────────────────────────────────────────────
+minio:
+  endpoint: "${MINIO_ENDPOINT:-minio:9000}"
+  access_key: "${MINIO_ACCESS_KEY:-minioadmin}"
+  secret_key: "${MINIO_SECRET_KEY:-minioadmin}"
+  secure: false
+  buckets:
+    raw: "raw"
+    processed: "processed"
+    dictionaries: "dictionaries"
+    temp: "pipeline-temp"
+
+# ────────────────────────────────────────────────────────────────────────────
+# PostgreSQL Database (shared across all sources)
+# ────────────────────────────────────────────────────────────────────────────
+database:
+  host: "${DB_HOST:-postgres}"
+  port: 5432
+  name: "${DB_NAME:-pipeline}"
+  user: "${DB_USER:-pipeline_user}"
+  password: "${DB_PASSWORD:-pipeline_password}"
+
+# ────────────────────────────────────────────────────────────────────────────
+# Pipeline Defaults (can be overridden in DAG configs)
+# ────────────────────────────────────────────────────────────────────────────
+pipeline:
+  batch_size: 50
+
+  # skip_existing: Enable document filtering based on database state
+  # - true: Filter documents before downloading, skip unchanged documents (default)
+  #         Uses bulk DB query to compare revision_date and skip documents that haven't changed
+  #         Significantly reduces API load and processing time for incremental runs (90%+ savings)
+  # - false: Download all documents without filtering (useful for force refresh or testing)
+  skip_existing: true
+
+  min_text_length: 50
+  temp_retention_days: 7
+
+# ────────────────────────────────────────────────────────────────────────────
+# Logging Configuration
+# ────────────────────────────────────────────────────────────────────────────
+logging:
+  level: "INFO"
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  file: "outputs/logs/pipeline.log"
