@@ -389,10 +389,6 @@ docker-compose exec -T minio mc mb local/pipeline-temp
 
 ---
 
-## Kyivstar Assessment Submission
-
-This project was developed as an assessment task for the **Kyivstar UkrLLM Data Engineer position**.
-
 ### Submission Package Contents
 
 1. **Code**: Full Python pipeline with CLI entry point (`scripts/run_pipeline.py`)
@@ -401,22 +397,6 @@ This project was developed as an assessment task for the **Kyivstar UkrLLM Data 
 4. **Docker**: `docker/Dockerfile` + `docker/docker-compose.yaml`
 5. **Report**: `REPORT.md` (comprehensive assessment report with analysis)
 6. **Data Dump**: `outputs/` directory with sample documents and database exports
-
-### Assessment Task Compliance
-
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| **Data Collection** | ✅ Complete | `pipeline/collectors/rada.py` - Full metadata + text collection |
-| **Data Transformation** | ✅ Complete | `pipeline/tasks/transform.py` - Markdown with YAML frontmatter |
-| **Airflow Automation** | ✅ Complete | `dags/rada_data_source/document_pipeline_dag.py` - Scheduled DAG |
-| **Quality Controls** | ✅ Complete | `pipeline/tasks/quality.py` - Validation checks + reporting |
-| **Idempotent Code** | ✅ Complete | SCD Type 2 + pre-download filtering (revision_date comparison) |
-| **Config File** | ✅ Complete | YAML configuration (split: global + DAG-specific) |
-| **UV/Poetry Lockfile** | ✅ Complete | `uv.lock` with pinned dependencies |
-| **Dockerfile** | ✅ Complete | Airflow 2.10.4 + Python 3.12 base image |
-| **Installation Guide** | ✅ Complete | See Quick Start section above |
-| **Report** | ✅ Complete | `REPORT.md` - 6 sections per task requirements |
-| **Data Dump** | ✅ Complete | `outputs/` directory with MinIO exports + CSV files |
 
 ### Quick Demo
 
@@ -443,31 +423,6 @@ make check-db    # PostgreSQL: 10 documents
 make check-minio # MinIO: 60 files (10 docs × 6 file types)
 ```
 
-### Report Highlights
-
-**REPORT.md** contains comprehensive analysis including:
-
-1. **Solution Design**: Architecture, components, database schema (SCD Type 2), data flow
-2. **Automation Recommendation**: Deployment strategies, scheduling, scaling, monitoring
-3. **Heuristic Filtering**: Pre-download filtering (90%+ reduction), optional NeMo-Curator
-4. **Analysis of Data Collected**: Real metrics from 204 documents, quality scores
-5. **Failure Cases & Improvements**: Current limitations, scalability bottlenecks
-6. **Reproducibility Checklist**: Step-by-step installation, verification, troubleshooting
-
-**Key Metrics** (from production run):
-- **204 documents** collected from Rada API
-- **2.48M characters**, **314K words** (avg 1,541 words/document)
-- **100% quality score** (all checks passed)
-- **90% API call reduction** on incremental runs (pre-download filtering)
-- **~7.1 GB storage** (raw + processed files with dual-write partitioning)
-
-### Time Investment
-
-- **Research & Design**: 1.5 hours
-- **Implementation**: 5 hours
-- **Testing & Documentation**: 1.5 hours
-- **Total**: ~8 hours (within assessment task time limit)
-
 ### Data Dump Structure
 
 ```
@@ -487,19 +442,3 @@ outputs/
 ├── pipeline_run_metrics.json       # Latest run statistics
 └── documents_statistics.json       # Aggregate text metrics
 ```
-
-### Key Achievements
-
-✅ **Production-ready**: Tested with real data, comprehensive error handling
-✅ **Scalable**: Hive-style partitioning, SCD Type 2, pluggable collectors
-✅ **Efficient**: 90%+ API call reduction via pre-download filtering
-✅ **Well-documented**: 3 comprehensive docs (README, ARCHITECTURE, REPORT)
-✅ **Extensible**: Collector pattern enables easy addition of new sources
-✅ **Quality-focused**: 100% test pass rate, validation at every stage
-
-### Contact
-
-For questions about the implementation or assessment task:
-- **Repository**: [Link to repository]
-- **Documentation**: See `REPORT.md` for detailed analysis
-- **Architecture**: See `ARCHITECTURE.md` for design decisions

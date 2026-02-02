@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This report presents a production-ready data pipeline for collecting Ukrainian legislative documents from the Verkhovna Rada API, transforming them to Markdown format, and automating the process with Apache Airflow. The implementation fulfills all mandatory requirements of the Kyivstar assessment task.
+This report presents a production-ready data pipeline for collecting Ukrainian legislative documents from the Verkhovna Rada API, transforming them to Markdown format, and automating the process with Apache Airflow. 
 
 The pipeline is built as an extensible framework with pluggable collectors, enabling easy addition of new data sources beyond Rada. Core infrastructure includes PostgreSQL for metadata storage with SCD Type 2 history tracking, MinIO for S3-compatible object storage, and Airflow 2.10.4 for orchestration.
 
