@@ -54,6 +54,6 @@ pipeline:
   # - 5 (default): Testing/development (quick verification)
   # - 0: No limit - collect all available documents (~514 for Rada)
   # - Any positive number: Collect specific count (e.g., 10, 50, 100)
-  doc_limit: 5
+  doc_limit: 10
 
   min_text_length: 100  # Rada documents typically longer than default 50
