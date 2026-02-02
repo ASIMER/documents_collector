@@ -4,13 +4,14 @@
 # Simplified commands for common operations
 # ============================================================================
 
-.PHONY: help up down restart logs logs-scheduler logs-webserver \
+.PHONY: help setup up down restart logs logs-scheduler logs-webserver \
         run-pipeline check-db check-minio clean
 
 # Default target
 help:
 	@echo "Document Collection Pipeline - Available Commands:"
 	@echo ""
+	@echo "  make setup           - Create directories with correct permissions"
 	@echo "  make up              - Start all Docker services"
 	@echo "  make down            - Stop all Docker services"
 	@echo "  make restart         - Restart all services"
@@ -28,10 +29,26 @@ help:
 	@echo "  make check-db"
 
 # ────────────────────────────────────────────────────────────────────────────
+# Setup
+# ────────────────────────────────────────────────────────────────────────────
+
+setup:
+	@echo "Creating directories with correct permissions..."
+	@mkdir -p outputs/logs
+	@mkdir -p data
+	@chmod -R 777 outputs/logs
+	@chmod -R 777 data
+	@echo "Directories created successfully"
+	@echo ""
+	@echo "Directory structure:"
+	@ls -la outputs/
+	@ls -la data/
+
+# ────────────────────────────────────────────────────────────────────────────
 # Docker Operations
 # ────────────────────────────────────────────────────────────────────────────
 
-up:
+up: setup
 	@echo "Starting Docker services..."
 	cd docker && docker-compose up -d
 	@echo "Waiting for services to be healthy..."

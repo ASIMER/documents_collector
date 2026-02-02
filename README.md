@@ -49,8 +49,13 @@ cd documents_collector
 make up
 
 # Or using docker-compose directly
+# First create required directories with correct permissions
+mkdir -p outputs/logs data
+chmod -R 777 outputs/logs data
 cd docker && docker-compose up -d
 ```
+
+**Note**: `make up` automatically creates required directories (`outputs/logs`, `data`) with correct permissions for Airflow (UID 50000).
 
 Wait 60-90 seconds for all services to initialize.
 
